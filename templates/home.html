@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock title %}
+
+{% block content %}
+<style>
+  div.container {
+    border-radius: 5px;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    box-shadow: 15px 15px 10px grey;
+    width: 685px;
+    margin-top: 100px;
+  }
+
+  body {
+    background-color: #FFEFD5;
+    background: #FEAC5E;
+    background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+    background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+    height: 3000px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div align="center">
+      <h1><b>Voice Based Taxi Booking System</b></h1>
+      <div>
+        <h2><span>1.</span> Booking in no time!</h2>
+        <h2><span>2.</span> Online and Ondemand pay available!</h2>
+        <h2><span>3.</span> Super simple to use!</h2>
+        <h2><span>4.</span> Go to any location!</h2>
+      </div>
+    </div>
+  </div>
+
+  {% endblock content %}
+</body>

@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Book Your Taxi
+{% endblock title %}
+
+{% block content %}
+<style>
+  body {
+            font-family: Arial;
+            font-size: 17px;
+            padding: 8px;
+            background: #FEAC5E;
+      background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+      background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+      height: 1300px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+            position: relative;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-family: sans-serif;
+            overflow: scroll;
+            user-select: none;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        
+    input{
+        padding:15px;
+        border:1px;
+        background-color:rgb(240,240,240);
+        outline: none;
+        border-bottom:2px solid rgb(163, 163, 163);
+    }
+
+    input:hover{
+        padding:15px;
+        border:1px;
+        background-color:rgb(207, 207, 207);
+        border-bottom:2px solid rgb(163, 163, 163);
+    }
+
+    input:focus{
+        padding:15px;
+        border:1px;
+        background-color:rgb(0, 87, 168);
+        color:white;
+        border-bottom:2px solid rgb(163, 163, 163);
+    }
+
+    input[type=submit]{
+        background-color:rgb(0, 128, 96);
+        color:white;
+    }
+
+    [type=radio] { 
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      /* IMAGE STYLES */
+      [type=radio] + img {
+        cursor: pointer;
+      }
+      
+      /* CHECKED STYLES */
+      [type=radio]:checked + img {
+        outline: 2px solid teal;
+        border-radius:10px;
+        
+      }
+
+      .video-background {
+        background: rgb(0, 0, 0);
+        position: fixed;
+        top: 0; right: 0; bottom: 0; left: 0;
+        z-index: -99;
+        opacity:0.6;
+        transform:scale(1.2);
+      }
+      .video-foreground,
+      .video-background iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+
+      @keyframes fade{
+        from{
+          opacity:0;
+          transform:translateX(50px);
+        }
+        to{
+          opacity:1;
+        }
+      }
+
+      .tab {
+        display: none;
+        animation:fade 0.5s ease-in;
+        margin-left: 42%;
+      }
+
+      select {
+            width: 25%;
+            margin-bottom: 20px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+        }
+</style>
+<form action="booktaxi" method="POST" align="" style="align-items:center; justify-content:center;">
+    <div style="padding:10px; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+    <h2> Hi, {% if user.is_authenticated %} {{ user.first_name }}. Please give your ride details here. <br> <small style="font-size:16px; font-weight:100;">If the map is not updated try editing your from/to field manually.</small> {% else %} <b>Please login to book a taxi<b><br><small style="font-size:16px;">To login <a href="{% url 'signinform' %}">click here</a>.</small>  {% endif %}</h2> 
+    
+        {% if user.is_authenticated %}
+    {% csrf_token %}
+    <div style="display:flex; flex-direction:column;">
+      
+  <div id="results" align="center">
+    <span id="final_span" class="final"></span>
+    <span id="interim_span" class="interim" style="color:silver;">Recognition interim will be displayed here.</span>
+    <p>
+  </div>
+
+    <!-- From To Section -->
+    <div class="tab">
+    <div style="display:flex; flex-direction:column;">
+    {% comment %} <div align="left"><b>From<span style="color:red;">*<span></span></span></b></div> {% endcomment %}
+    <div style="display:flex; margin:10px; padding:10px;">
+    <input type="text" placeholder="From" name="FromInput" maxlength="100" required="" id="FromInput" oninput="document.getElementById('frommap').src = 'https://maps.google.com/maps?q=' + this.value + '&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed';">
+    <br>
+    <button id="start_button" type="button" onclick="startButton(event);" style="border:1px; padding:10px;">
+    <img id="start_img" style="width:40px; height:40px;" src="{% static 'mic.png' %}" alt="Start">
+    </button>
+
+    <div>
+        <iframe id="frommap" width="200" height="150" id="gmap_canvas" src="https://maps.google.com/maps?q=lucknow&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    </div>
+    </div>
+
+    <br>
+
+    {% comment %} <div align="left"><b>To<span style="color:red;">*<span></span></span></b></div> {% endcomment %}
+    <div style="display:flex;  margin:10px; padding:10px;">
+    <input type="text" placeholder="To" name="ToInput" maxlength="100" required="" id="ToInput"  oninput="document.getElementById('tomap').src = 'https://maps.google.com/maps?q=' + this.value + '&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed';">
+    <br>
+    <button id="start_button_two" type="button" onclick="startButtontwo(event);" style="border:1px; padding:10px;">
+    <img id="start_img_two" style="width:40px; height:40px;" src="{% static 'mic.png' %}" alt="Start">
+    </button>
+    
+    <div>
+        <iframe id="tomap" width="200" height="150" id="gmap_canvas" src="https://maps.google.com/maps?q=Mumbai&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    </div>
+    </div>
+    </div>
+   
+  </div>
+    <!-- Vehical Select Section -->
+
+    <div class="tab">
+    <div align="left"><b>Select Vehical Type<span style="color:red;">*<span></span></span></b></div>
+    <div style="display:flex;">
+    
+          <label>
+            <input type="radio" name="vehicaltype" value="Bike" onclick="document.getElementById('amount').innerText = '500'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText);">
+            <img src="{% static 'bycicle.png' %}" style="width:100px; height:100px; margin:10px; padding:10px;">
+            <br><span style="margin:35px; text-align:center;">Bike</span>
+          </label>
+
+          <label>
+            <input type="radio" name="vehicaltype" value="Mini" onclick="document.getElementById('amount').innerText = '1000'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText);">
+            <img src="{% static 'sport-car.png' %}" style="width:100px; height:100px; margin:10px; padding:10px;">
+            <br><span style="margin:35px; text-align:center;">Mini</span>
+          </label>
+
+          <label>
+            <input type="radio" name="vehicaltype" value="Normal" required onclick="document.getElementById('amount').innerText = '5000'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText);">
+            <img src="{% static 'car.png' %}" style="width:100px; height:100px; margin:10px; padding:10px;">
+            <br><span style="margin:35px; text-align:center;">Normal</span>
+          </label>
+          
+          <label>
+            <input type="radio" name="vehicaltype" value="Large" onclick="document.getElementById('amount').innerText = '10000'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText);">
+            <img src="{% static 'hatchback.png' %}" style="width:100px; height:100px; margin:10px; padding:10px;">
+            <br><span style="margin:35px; text-align:center;">Large</span>
+          </label>
+
+          
+        
+
+
+    </div>
+  </div>
+    <!-- Mode of payment section -->
+    <div class="tab">
+    <div align="left"><b>Select Mode of Payment<span style="color:red;">*<span></span></span></b></div>
+    <div style="display:flex;">
+          <label>
+            <input type="radio" name="paymode" value="Online Payment" required onclick="document.getElementById('confee').innerText = '100'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText); document.getElementById('carddetailsform').style.display='block';">
+            <img src="{% static 'online-payment.png' %}" style="width:80px; height:80px; margin:10px; padding:10px;">
+            <br><span style="margin:5px; text-align:center;">Online Payment</span>
+          </label>
+          <label>
+            <input type="radio" name="paymode" value="Offline Payment" onclick="document.getElementById('confee').innerText = '0'; document.getElementById('totalamount').innerText = parseInt(document.getElementById('confee').innerText) + parseInt(document.getElementById('amount').innerText);  document.getElementById('carddetailsform').style.display='none';">
+            <img src="{% static 'payment.png' %}" style="width:80px; height:80px; margin:10px; padding:10px;">
+            <br><span style="margin:5px; text-align:center;">Offline Payment</span>
+          </label>
+    </div>
+
+    <div id="carddetailsform">
+      <h3>Enter your card details (We will not save your card details)</h3>
+      <div style="display:flex; flex-direction:row;">
+      <div class="form-container">
+        <div class="field-container">
+            <label for="name"><b>Name</b></label><br>
+            <input id="name" maxlength="20" type="text">
+        </div>
+        <br>
+        <div class="field-container">
+            <label for="cardnumber"><b>Card Number</b></label><br>
+            <input id="cardnumber" type="text" pattern="[0-9]*" inputmode="numeric">
+        </div>
+        <br>
+        <div class="field-container">
+            <label for="expirationdate"><b>Expiration (mm/yy)</b></label><br>
+            <input id="expirationdate" type="text" pattern="[0-9]*" inputmode="numeric">
+        </div>
+        <br>
+        <div class="field-container">
+            <label for="securitycode"><b>Security Code</b></label><br>
+            <input id="securitycode" name="code" type="text" pattern="[0-9]*" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+    <br>
+    </div>
+    
+  </div>
+    <!-- Final submit section -->
+    <div class="tab">
+    <div align="left"><b>Final Estimated Amount (You may get remaining cash back after the journey)<span style="color:red;">*<span></span></span></b></div>
+    <div style="display:flex; align-items:center; font-size:50px; margin:20px; padding:10px; color:teal;">
+          <span>Rs.</span><span id="amount">0</span> <span>  +  </span><span>Rs.</span></span> <span id="confee" style="color:darkgreen;">0</span> <span> = </span> <span>Rs.</span><span id="totalamount">0</span>
+    </div>
+
+
+    <input type="submit" value="BOOK" style="margin:10px; width:90%; text-align:center;">
+  </div>
+
+  <br><br>
+  <div style="overflow:auto;">
+    <div style="float:right;">
+      <button type="button" id="prevBtn" onclick="nextPrev(-1)" style="border:1px; border-radius:10px; padding:20px; background-color:green; color:white;">PREVIOUS</button>
+      <button type="button" id="nextBtn" onclick="nextPrev(1)" style="border:1px; border-radius:10px; padding:20px;  background-color:green; color:white;">NEXT</button>
+    </div>
+  </div>
+    </div>
+
+    {% endif %}
+    </div>
+</form>
+
+
+
+
+
+<div align="center">
+    <h3><b>Voice Input Settings</b></h3>
+  <div class="center">
+    </div>
+    <p>
+    <div id="div_language">
+      <select id="select_language" onchange="updateCountry()"></select>
+      &nbsp;&nbsp;
+      <select id="select_dialect"></select>
+    </div>
+  </div>
+
+<div id="info" align="center">
+    <p id="info_start">Click on the microphone icon and begin speaking.</p>
+    <p id="info_speak_now">Speak now.</p>
+    <p id="info_no_speech">No speech was detected. You may need to adjust your
+      <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+        microphone settings</a>.</p>
+    <p id="info_no_microphone" style="display:none">
+      No microphone was found. Ensure that a microphone is installed and that
+      <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+      microphone settings</a> are configured correctly.</p>
+    <p id="info_allow">Click the "Allow" button above to enable your microphone.</p>
+    <p id="info_denied">Permission to use microphone was denied.</p>
+    <p id="info_blocked">Permission to use microphone is blocked. To change,
+      go to chrome://settings/contentExceptions#media-stream</p>
+    <p id="info_upgrade">Web Speech API is not supported by this browser.
+       Upgrade to <a href="//www.google.com/chrome">Chrome</a>
+       version 25 or later.</p>
+  </div>
+</div>
+
+
+
+
+<script>
+
+  var currentTab = 0; // Current tab is set to be the first tab (0)
+  showTab(currentTab); // Display the current tab
+  function showTab(n) {
+    // This function will display the specified tab of the form ...
+    var x = document.getElementsByClassName("tab");
+    x[n].style.display = "block";
+    // ... and fix the Previous/Next buttons:
+    if (n == 0) {
+      document.getElementById("prevBtn").style.display = "none";
+    } else {
+      document.getElementById("prevBtn").style.display = "inline";
+    }
+    if (n == (x.length - 1)) {
+      document.getElementById("nextBtn").style.display="none";
+    } else {
+      document.getElementById("nextBtn").style.display="inline-block";
+      document.getElementById("nextBtn").innerHTML = "NEXT";
+    }
+    // ... and run a function that displays the correct step indicator:
+    fixStepIndicator(n)
+  }
+
+  function nextPrev(n) {
+    // This function will figure out which tab to display
+    var x = document.getElementsByClassName("tab");
+    // Hide the current tab:
+    x[currentTab].style.display = "none";
+    // Increase or decrease the current tab by 1:
+    currentTab = currentTab + n;
+    // if you have reached the end of the form... :
+    if (currentTab >= x.length) {
+      //...the form gets submitted:
+      document.getElementById("regForm").submit();
+      return false;
+    }
+    // Otherwise, display the correct tab:
+    showTab(currentTab);
+  }
+
+</script>
+
+
+
+
+
+
+
+
+
+
+<script>
+    var langs =
+    [['Afrikaans',       ['af-ZA']],
+     ['Bahasa Indonesia',['id-ID']],
+     ['Bahasa Melayu',   ['ms-MY']],
+     ['Català',          ['ca-ES']],
+     ['Čeština',         ['cs-CZ']],
+     ['Deutsch',         ['de-DE']],
+     ['English',         ['en-AU', 'Australia'],
+                         ['en-CA', 'Canada'],
+                         ['en-IN', 'India'],
+                         ['en-NZ', 'New Zealand'],
+                         ['en-ZA', 'South Africa'],
+                         ['en-GB', 'United Kingdom'],
+                         ['en-US', 'United States']],
+     ['Español',         ['es-AR', 'Argentina'],
+                         ['es-BO', 'Bolivia'],
+                         ['es-CL', 'Chile'],
+                         ['es-CO', 'Colombia'],
+                         ['es-CR', 'Costa Rica'],
+                         ['es-EC', 'Ecuador'],
+                         ['es-SV', 'El Salvador'],
+                         ['es-ES', 'España'],
+                         ['es-US', 'Estados Unidos'],
+                         ['es-GT', 'Guatemala'],
+                         ['es-HN', 'Honduras'],
+                         ['es-MX', 'México'],
+                         ['es-NI', 'Nicaragua'],
+                         ['es-PA', 'Panamá'],
+                         ['es-PY', 'Paraguay'],
+                         ['es-PE', 'Perú'],
+                         ['es-PR', 'Puerto Rico'],
+                         ['es-DO', 'República Dominicana'],
+                         ['es-UY', 'Uruguay'],
+                         ['es-VE', 'Venezuela']],
+     ['Euskara',         ['eu-ES']],
+     ['Français',        ['fr-FR']],
+     ['Galego',          ['gl-ES']],
+     ['Hrvatski',        ['hr_HR']],
+     ['IsiZulu',         ['zu-ZA']],
+     ['Íslenska',        ['is-IS']],
+     ['Italiano',        ['it-IT', 'Italia'],
+                         ['it-CH', 'Svizzera']],
+     ['Magyar',          ['hu-HU']],
+     ['Nederlands',      ['nl-NL']],
+     ['Norsk bokmål',    ['nb-NO']],
+     ['Polski',          ['pl-PL']],
+     ['Português',       ['pt-BR', 'Brasil'],
+                         ['pt-PT', 'Portugal']],
+     ['Română',          ['ro-RO']],
+     ['Slovenčina',      ['sk-SK']],
+     ['Suomi',           ['fi-FI']],
+     ['Svenska',         ['sv-SE']],
+     ['Türkçe',          ['tr-TR']],
+     ['български',       ['bg-BG']],
+     ['Pусский',         ['ru-RU']],
+     ['Српски',          ['sr-RS']],
+     ['한국어',            ['ko-KR']],
+     ['中文',             ['cmn-Hans-CN', '普通话 (中国大陆)'],
+                         ['cmn-Hans-HK', '普通话 (香港)'],
+                         ['cmn-Hant-TW', '中文 (台灣)'],
+                         ['yue-Hant-HK', '粵語 (香港)']],
+     ['日本語',           ['ja-JP']],
+     ['Lingua latīna',   ['la']]];
+    
+    for (var i = 0; i < langs.length; i++) {
+      select_language.options[i] = new Option(langs[i][0], i);
+    }
+    select_language.selectedIndex = 6;
+    updateCountry();
+    select_dialect.selectedIndex = 6;
+    showInfo('info_start');
+    
+    function updateCountry() {
+      for (var i = select_dialect.options.length - 1; i >= 0; i--) {
+        select_dialect.remove(i);
+      }
+      var list = langs[select_language.selectedIndex];
+      for (var i = 1; i < list.length; i++) {
+        select_dialect.options.add(new Option(list[i][1], list[i][0]));
+      }
+      select_dialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
+    }
+    
+    var create_email = false;
+    var final_transcript = '';
+    var recognizing = false;
+    var ignore_onend;
+    var start_timestamp;
+    var start_img_two = document.getElementById('start_img_two');
+    if (!('webkitSpeechRecognition' in window)) {
+      upgrade();
+    } else {
+      start_button.style.display = 'inline-block';
+      var recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+    
+      recognition.onstart = function() {
+        recognizing = true;
+        showInfo('info_speak_now');
+        start_img.src = '{% static "voice.png" %}';
+      };
+    
+      recognition.onerror = function(event) {
+        if (event.error == 'no-speech') {
+          start_img.src = '{% static "mic.png" %}';
+          showInfo('info_no_speech');
+          ignore_onend = true;
+        }
+        if (event.error == 'audio-capture') {
+          start_img.src = '{% static "mic.png" %}';
+          showInfo('info_no_microphone');
+          ignore_onend = true;
+        }
+        if (event.error == 'not-allowed') {
+          if (event.timeStamp - start_timestamp < 100) {
+            showInfo('info_blocked');
+          } else {
+            showInfo('info_denied');
+          }
+          ignore_onend = true;
+        }
+      };
+    
+      recognition.onend = function() {
+        recognizing = false;
+        if (ignore_onend) {
+          return;
+        }
+        start_img.src = '{% static "mic.png" %}';
+        if (!final_transcript) {
+          showInfo('info_start');
+          return;
+        }
+        showInfo('');
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges();
+          var range = document.createRange();
+          range.selectNode(document.getElementById('final_span'));
+          window.getSelection().addRange(range);
+        }
+        if (create_email) {
+          create_email = false;
+          createEmail();
+        }
+      };
+    
+      recognition.onresult = function(event) {
+        var interim_transcript = '';
+        for (var i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final_transcript += event.results[i][0].transcript;
+          } else {
+            interim_transcript += event.results[i][0].transcript;
+          }
+        }
+        final_transcript = capitalize(final_transcript);
+        final_span.innerHTML = linebreak(final_transcript);
+        document.getElementById("FromInput").value = linebreak(final_transcript);
+        
+        interim_span.innerHTML = linebreak(interim_transcript);
+        if (final_transcript || interim_transcript) {
+          showButtons('inline-block');
+        }
+      };
+    }
+    
+    function upgrade() {
+      start_button.style.visibility = 'hidden';
+      showInfo('info_upgrade');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (!('webkitSpeechRecognition' in window)) {
+        upgrade();
+      } else {
+        start_button.style.display = 'inline-block';
+        var recognitiontwo = new webkitSpeechRecognition();
+        recognitiontwo.continuous = true;
+        recognitiontwo.interimResults = true;
+      
+        recognitiontwo.onstart = function() {
+          recognizing = true;
+          showInfo('info_speak_now');
+          start_img_two.src = '{% static "voice.png" %}';
+        };
+      
+        recognitiontwo.onerror = function(event) {
+          if (event.error == 'no-speech') {
+            start_img_two.src = '{% static "mic.png" %}';
+            showInfo('info_no_speech');
+            ignore_onend = true;
+          }
+          if (event.error == 'audio-capture') {
+            start_img_two.src = '{% static "mic.png" %}';
+            showInfo('info_no_microphone');
+            ignore_onend = true;
+          }
+          if (event.error == 'not-allowed') {
+            if (event.timeStamp - start_timestamp < 100) {
+              showInfo('info_blocked');
+            } else {
+              showInfo('info_denied');
+            }
+            ignore_onend = true;
+          }
+        };
+      
+        recognitiontwo.onend = function() {
+          recognizing = false;
+          if (ignore_onend) {
+            return;
+          }
+          start_img_two.src = '{% static "mic.png" %}';
+          if (!final_transcript) {
+            showInfo('info_start');
+            return;
+          }
+          showInfo('');
+          if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+            var range = document.createRange();
+            range.selectNode(document.getElementById('final_span'));
+            window.getSelection().addRange(range);
+          }
+          if (create_email) {
+            create_email = false;
+            createEmail();
+          }
+        };
+      
+        recognitiontwo.onresult = function(event) {
+          var interim_transcript = '';
+          for (var i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              final_transcript += event.results[i][0].transcript;
+            } else {
+              interim_transcript += event.results[i][0].transcript;
+            }
+          }
+          final_transcript = capitalize(final_transcript);
+          final_span.innerHTML = linebreak(final_transcript);
+          document.getElementById("ToInput").value = linebreak(final_transcript);
+          interim_span.innerHTML = linebreak(interim_transcript);
+          if (final_transcript || interim_transcript) {
+            showButtons('inline-block');
+          }
+        };
+      }
+      
+      function upgrade() {
+        start_button.style.visibility = 'hidden';
+        showInfo('info_upgrade');
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    var two_line = /\n\n/g;
+    var one_line = /\n/g;
+    function linebreak(s) {
+      return s.replace(two_line, '<p></p>').replace(one_line, '<br>');
+    }
+    
+    var first_char = /\S/;
+    function capitalize(s) {
+      return s.replace(first_char, function(m) { return m.toUpperCase(); });
+    }
+    
+    function createEmail() {
+      var n = final_transcript.indexOf('\n');
+      if (n < 0 || n >= 80) {
+        n = 40 + final_transcript.substring(40).indexOf(' ');
+      }
+      var subject = encodeURI(final_transcript.substring(0, n));
+      var body = encodeURI(final_transcript.substring(n + 1));
+      window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    }
+    
+    function copyButton() {
+      if (recognizing) {
+        recognizing = false;
+        recognition.stop();
+      }
+      copy_button.style.display = 'none';
+      copy_info.style.display = 'inline-block';
+      showInfo('');
+    }
+    
+    function emailButton() {
+      if (recognizing) {
+        create_email = true;
+        recognizing = false;
+        recognition.stop();
+      } else {
+        createEmail();
+      }
+      email_button.style.display = 'none';
+      email_info.style.display = 'inline-block';
+      showInfo('');
+    }
+    
+    function startButton(event) {
+      if (recognizing) {
+        recognition.stop();
+        document.getElementById('frommap').src = 'https://maps.google.com/maps?q=' + document.getElementById('FromInput').value + '&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed';
+        return;
+      }
+      final_transcript = '';
+      
+      recognition.lang = select_dialect.value;
+      recognition.start();
+      ignore_onend = false;
+      final_span.innerHTML = '';
+      interim_span.innerHTML = '';
+      start_img.src = '{% static "mic.png" %}';
+      showInfo('info_allow');
+      showButtons('none');
+      start_timestamp = event.timeStamp;
+    }
+
+    function startButtontwo(event) {
+        if (recognizing) {
+          recognitiontwo.stop();
+          document.getElementById('tomap').src = 'https://maps.google.com/maps?q=' + document.getElementById('ToInput').value + '&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed';
+          return;
+        }
+        final_transcript = '';
+        recognitiontwo.lang = select_dialect.value;
+        recognitiontwo.start();
+        ignore_onend = false;
+        final_span.innerHTML = '';
+        interim_span.innerHTML = '';
+        start_img_two.src = '{% static "mic.png" %}';
+        showInfo('info_allow');
+        showButtons('none');
+        start_timestamp = event.timeStamp;
+      }
+      
+    
+    function showInfo(s) {
+      if (s) {
+        for (var child = info.firstChild; child; child = child.nextSibling) {
+          if (child.style) {
+            child.style.display = child.id == s ? 'inline' : 'none';
+          }
+        }
+        info.style.visibility = 'visible';
+      } else {
+        info.style.visibility = 'hidden';
+      }
+    }
+
+    
+    
+    var current_style;
+    function showButtons(style) {
+      if (style == current_style) {
+        return;
+      }
+      current_style = style;
+      copy_info.style.display = 'none';
+      email_info.style.display = 'none';
+    }
+    </script>
+{% endblock content %}

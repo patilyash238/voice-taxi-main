@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        font-family: Arial;
+        font-size: 17px;
+        padding: 8px;
+        background-color: #FFEFD5;
+        background: #FEAC5E;
+        background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+        background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);
+        height: 3000px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-family: sans-serif;
+        overflow: none;
+        user-select: none;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        text-decoration: none;
+    }
+
+    button {
+        padding: 6px 14px;
+        font-size: 20px;
+        text-align: center;
+        cursor: pointer;
+        outline: none;
+        color: #fff;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 50px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, .8);
+        width: 22%;
+        height: 40px;
+        margin-left: 5px;
+    }
+
+    button:hover {
+        background-color: #3e8e41
+    }
+
+
+    button:active {
+        background-color: #3e8e41;
+        transform: translateY(4px);
+    }
+
+    div.container {
+        border-radius: 5px;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        box-shadow: 15px 15px 10px grey;
+        width: 685px;
+        margin-top: 100px;
+    }
+
+    input[type=text],
+    input[type=password] {
+        width: 650px;
+        height: 40px;
+        padding: 10px 18px;
+        margin: 8px 0;
+        display: block;
+        border: 2px solid #ccc;
+        border-radius: 25px;
+        box-sizing: border-box;
+    }
+
+    input[type=submit] {
+        width: 300px;
+        background-color: black;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    h2 {
+        color: whitesmoke
+    }
+</style>
+
+<body>
+    <div class="container">
+        <center>
+            <form action="{% url 'signinform' %}" method="POST">
+                <b>
+                    <h2> Sign In / Login </h2>
+                </b>
+                {% csrf_token %}
+                {% for item in form %}
+                <div>
+                    <div align="left"><b>{{item.label}}{% if item.field.required %}<span style="color:red;">*<span>{% endif %}</b>
+                    </div>
+                    <div>{{ item }}</div>
+                </div><br>
+                {% endfor %}
+                <button type="submit" value="LOGIN">Login</button>
+    </div>
+    </form>
+    </center>
+    </div>
+    {% endblock content %}
+</body>

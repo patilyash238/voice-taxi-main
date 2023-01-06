@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <title>
+        {% block title %}
+
+        {% endblock title%}
+    </title>
+    <style>
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(120px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        body {
+            font-family: Arial;
+            font-size: 17px;
+            padding: 8px;
+            background-color: transparent;
+            height: 1000px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-family: sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            text-decoration: none;
+        }
+
+        nav {
+            height: 50px;
+            background: #063247;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .4);
+            border-radius: 22px;
+        }
+
+        nav ul {
+            float: right;
+            margin-right: 30px;
+        }
+
+        nav ul li {
+            display: inline-block;
+        }
+
+        nav ul li a {
+            color: white;
+            display: block;
+            padding: 0 15px;
+            line-height: 50px;
+            font-size: 22px;
+            background: #063247;
+            transition: .5s;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            color: #23dbdb;
+        }
+
+        nav ul ul {
+            position: absolute;
+            top: 85px;
+            border-top: 3px solid #23dbdb;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        nav ul li:hover>ul {
+            top: 55px;
+            opacity: 1;
+            visibility: visible;
+            transition: .3s linear;
+        }
+
+        nav ul ul li {
+            width: 150px;
+            display: list-item;
+            position: relative;
+            border: 1px solid #042331;
+            border-top: none;
+        }
+
+        nav ul ul li a {
+            line-height: 50px;
+        }
+
+        nav ul ul ul {
+            border-top: none;
+        }
+
+        nav ul ul ul li {
+            position: relative;
+            top: -55px;
+            left: 150px;
+        }
+
+        nav ul ul li a i {
+            margin-left: 45px;
+        }
+
+        .img{
+            margin-left:3px;
+        }
+    </style>
+</head>
+
+<body style="margin:0px;">
+    <div>
+
+        <div>
+            {% if user.is_authenticated %}
+            <nav>
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgkFBosKAG7g2-m5Wuqc9aKNFyuU9C5xDZzQ&usqp=CAU"
+            style="width:80px;height:47px;margin-top:2px;margin-left:3px;border-radius:22px">
+                <ul>
+                    <li><a href="{% url 'booktaxi' %}">Book a Taxi</a></li>
+                    <li><span style="color:white; font-size:22px">User: {{user.username}}</span></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </nav>
+
+        </div>
+        {% else %}
+        <nav>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgkFBosKAG7g2-m5Wuqc9aKNFyuU9C5xDZzQ&usqp=CAU"
+            style="width:80px;height:47px;margin-top:2px;margin-left:3px;border-radius:22px">
+            <ul>
+                <li> <a href="{% url 'signupform' %}">Sign Up</a></li>
+                <li><a href="{% url 'signinform' %}">Login</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+    <div style="padding:10px; margin:5px; background-color:lightgreen; color:green; border-left:5px solid green; animation:fade 0.4s ease-in;"
+        onclick="this.style.display='none';">
+        <div><span><b>Notification: </b></span><span>{{ message|safe }}</span> </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% block content %}
+
+    {% endblock content %}
+    <br>
+    <div align="center">
+        Staff? <a href="/admin">click here to go to admin panel</a>
+    </div>
+    <br><br><br>
+</body>
+
+</html>
